@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-framework="javascript">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>VanillaJS • TodoMVC</title>
+        <link rel="stylesheet" href="/css/main.css">
+    </head>
+    <body>
+        <section id="todoapp">
+            <header id="header">
+                <h1>todos</h1>
+                <form method="POST" action="/new">
+                    <input name="text" id="new-todo" placeholder="What needs to be done?" autofocus>
+                </form>
+            </header>
+            <section id="main">
+                <ul id="todo-list">
+                    {{range .Items}}
+                    <li data-id="{{.Id}}" class="{{if .Completed}}completed{{end}}">
+                        <div class="view">
+                            <a href="/toggle/{{.Id}}" class="button toggle"></a>
+                            <span>{{.Text}}</span>
+                            <a href="/delete/{{.Id}}" class="button destroy"></a>
+                        </div>
+                    </li>
+                    {{end}}
+                </ul>
+            </section>
+            <footer id="footer">
+                <span id="todo-count"></span>
+                <ul id="filters">
+                    <li>
+                        <a href="/">All</a>
+                    </li>
+                    <li>
+                        <a href="/active">Active</a>
+                    </li>
+                    <li>
+                        <a href="/completed">Completed</a>
+                    </li>
+                </ul>
+                <a href="/clear" class="button" id="clear-completed">Clear completed</a>
+            </footer>
+        </section>
+        <footer id="info">
+            <p>Double-click to edit a todo</p>
+            <p>Example based on <a href="http://todomvc.com">TodoMVC</a></p>
+        </footer>
+        <script src="/js/main.js"></script>
+    </body>
+</html>
