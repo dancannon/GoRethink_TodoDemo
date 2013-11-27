@@ -16,7 +16,7 @@
             </header>
             <section id="main">
                 <ul id="todo-list">
-                    {{range .Items}}
+                    {{range .}}
                     <li data-id="{{.Id}}" class="{{if .Completed}}completed{{end}}">
                         <div class="view">
                             <a href="/toggle/{{.Id}}" class="button toggle"></a>
