@@ -16,9 +16,9 @@ var (
 func init() {
 	var err error
 
-	session, err = r.Connect(map[string]interface{}{
-		"address":  "localhost:28015",
-		"database": "todo",
+	session, err = r.Connect(r.ConnectOpts{
+		Address:  "localhost:28015",
+		Database: "todo",
 	})
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -66,23 +66,16 @@ func indexHandler(w http.ResponseWriter, req *http.Request) {
 	items := []TodoItem{}
 
 	// Fetch all the items from the database
-	rows, err := r.Table("items").OrderBy(r.Asc("Created")).Run(session)
+	res, err := r.Table("items").OrderBy(r.Asc("Created")).Run(session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Scan each row into a TodoItem instance and then add this to the list
-	for rows.Next() {
-		var item TodoItem
-
-		err := rows.Scan(&item)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		items = append(items, item)
+	err = res.All(&items)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	renderTemplate(w, "index", items)
@@ -94,23 +87,15 @@ func activeIndexHandler(w http.ResponseWriter, req *http.Request) {
 	// Fetch all the items from the database
 	query := r.Table("items").Filter(r.Row.Field("Status").Eq("active"))
 	query = query.OrderBy(r.Asc("Created"))
-	rows, err := query.Run(session)
+	res, err := query.Run(session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	// Scan each row into a TodoItem instance and then add this to the list
-	for rows.Next() {
-		var item TodoItem
-
-		err := rows.Scan(&item)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		items = append(items, item)
+	err = res.All(&items)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	renderTemplate(w, "index", items)
@@ -122,23 +107,15 @@ func completedIndexHandler(w http.ResponseWriter, req *http.Request) {
 	// Fetch all the items from the database
 	query := r.Table("items").Filter(r.Row.Field("Status").Eq("complete"))
 	query = query.OrderBy(r.Asc("Created"))
-	rows, err := query.Run(session)
+	res, err := query.Run(session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
-	// Scan each row into a TodoItem instance and then add this to the list
-	for rows.Next() {
-		var item TodoItem
-
-		err := rows.Scan(&item)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		items = append(items, item)
+	err = res.All(&items)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	renderTemplate(w, "index", items)
@@ -168,7 +145,7 @@ func toggleHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Check that the item exists
-	res, err := r.Table("items").Get(id).RunRow(session)
+	res, err := r.Table("items").Get(id).Run(session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -202,7 +179,7 @@ func deleteHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	// Check that the item exists
-	res, err := r.Table("items").Get(id).RunRow(session)
+	res, err := r.Table("items").Get(id).Run(session)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
