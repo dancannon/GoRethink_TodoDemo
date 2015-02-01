@@ -19,6 +19,8 @@ func init() {
 	session, err = r.Connect(r.ConnectOpts{
 		Address:  "localhost:28015",
 		Database: "todo",
+		MaxOpen:  40,
+		Timeout:  time.Second * 10,
 	})
 	if err != nil {
 		log.Fatalln(err.Error())
@@ -37,6 +39,7 @@ func NewServer(addr string) *http.Server {
 }
 
 func StartServer(server *http.Server) {
+	log.Println("Starting server")
 	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatalln("Error: %v", err)
@@ -44,9 +47,11 @@ func StartServer(server *http.Server) {
 }
 
 func initRouting() *mux.Router {
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", indexHandler)
+	r.HandleFunc("/all", indexHandler)
 	r.HandleFunc("/active", activeIndexHandler)
 	r.HandleFunc("/completed", completedIndexHandler)
 	r.HandleFunc("/new", newHandler)
@@ -54,10 +59,24 @@ func initRouting() *mux.Router {
 	r.HandleFunc("/delete/{id}", deleteHandler)
 	r.HandleFunc("/clear", clearHandler)
 
+	// Add handler for websocket server
+	r.Handle("/ws/all", newChangesHandler(allChanges))
+	r.Handle("/ws/active", newChangesHandler(activeChanges))
+	r.Handle("/ws/completed", newChangesHandler(completedChanges))
+
 	// Add handler for static files
 	r.PathPrefix("/").Handler(http.FileServer(http.Dir("static")))
 
 	return r
+}
+
+func newChangesHandler(fn func(chan interface{})) http.HandlerFunc {
+	h := newHub()
+	go h.run()
+
+	fn(h.broadcast)
+
+	return wsHandler(h)
 }
 
 // Handlers
@@ -78,7 +97,10 @@ func indexHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	renderTemplate(w, "index", items)
+	renderTemplate(w, "index", map[string]interface{}{
+		"Items": items,
+		"Route": "all",
+	})
 }
 
 func activeIndexHandler(w http.ResponseWriter, req *http.Request) {
@@ -98,7 +120,10 @@ func activeIndexHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	renderTemplate(w, "index", items)
+	renderTemplate(w, "index", map[string]interface{}{
+		"Items": items,
+		"Route": "active",
+	})
 }
 
 func completedIndexHandler(w http.ResponseWriter, req *http.Request) {
@@ -118,7 +143,10 @@ func completedIndexHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	renderTemplate(w, "index", items)
+	renderTemplate(w, "index", map[string]interface{}{
+		"Items": items,
+		"Route": "completed",
+	})
 }
 
 func newHandler(w http.ResponseWriter, req *http.Request) {

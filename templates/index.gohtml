@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>VanillaJS • TodoMVC</title>
+        <title>Gorethink • TodoMVC</title>
         <link rel="stylesheet" href="/css/main.css">
     </head>
     <body>
@@ -16,8 +16,8 @@
             </header>
             <section id="main">
                 <ul id="todo-list">
-                    {{range .}}
-                    <li data-id="{{.Id}}" class="{{if .Completed}}completed{{end}}">
+                    {{range .Items}}
+                    <li data-id="{{.Id}}" class="{{.Status}}">
                         <div class="view">
                             <a href="/toggle/{{.Id}}" class="button toggle"></a>
                             <span>{{.Text}}</span>
@@ -31,7 +31,7 @@
                 <span id="todo-count"></span>
                 <ul id="filters">
                     <li>
-                        <a href="/">All</a>
+                        <a href="/all">All</a>
                     </li>
                     <li>
                         <a href="/active">Active</a>
@@ -47,6 +47,10 @@
             <p>Double-click to edit a todo</p>
             <p>Example based on <a href="http://todomvc.com">TodoMVC</a></p>
         </footer>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
         <script src="/js/main.js"></script>
+        <script type="text/javascript">
+            connect("{{.Route}}");
+        </script>
     </body>
 </html>
