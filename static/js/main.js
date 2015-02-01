@@ -4,7 +4,6 @@ function connect(path) {
 
     ws.onmessage = function(e) {
         var data = JSON.parse(e.data);
-        console.log(data);
 
         if (data.OldValue === null && data.NewValue !== null) {
             // new item

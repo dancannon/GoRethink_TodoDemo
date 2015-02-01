@@ -39,7 +39,6 @@ var upgrader = &websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
 func wsHandler(h hub) http.HandlerFunc {
 	log.Println("Starting websocket server")
 	return func(w http.ResponseWriter, r *http.Request) {
-		log.Println("connected")
 		ws, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			return

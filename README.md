@@ -6,6 +6,3 @@ This is an example application for [RethinkDB](http://rethinkdb.com) using the [
 
 To run the code you should have RethinkDB installed with the database `todo` and the table `items`. You should then run the following command `go build && ./GoRethink_TodoDemo` and navigate to `http://localhost:3000`.
 
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/dancannon/gorethink_tododemo/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
