@@ -20,7 +20,6 @@ func init() {
 		Address:  "localhost:28015",
 		Database: "todo",
 		MaxOpen:  40,
-		Timeout:  time.Second * 10,
 	})
 	if err != nil {
 		log.Fatalln(err.Error())
