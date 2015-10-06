@@ -5,9 +5,9 @@ function connect(path) {
     ws.onmessage = function(e) {
         var data = JSON.parse(e.data);
 
-        if (data.OldValue === null && data.NewValue !== null) {
+        if (data.old_val === null && data.new_val !== null) {
             // new item
-            var item = data.NewValue;
+            var item = data.new_val;
             list.append(""+
                 "<li data-id='"+item.id+"' class='"+item.Status+"'>"+
                     "<div class='view'>"+
@@ -17,13 +17,13 @@ function connect(path) {
                     "</div>"+
                 "</li>"+
             "");
-        } else if (data.OldValue !== null && data.NewValue === null) {
+        } else if (data.old_val !== null && data.new_val === null) {
             // deleted item
-            var item = data.OldValue;
+            var item = data.old_val;
             $("[data-id='"+item.id+"']").remove();
         } else {
             // updated item
-            var item = data.NewValue;
+            var item = data.new_val;
             $("[data-id='"+item.id+"']").attr("class", item.Status);
         }
     };
